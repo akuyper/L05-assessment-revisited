@@ -1,0 +1,155 @@
+---
+title: "L05 Assessment Revisited"
+subtitle: "Data Science III (STAT 301-3)"
+author: "YOUR NAME"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: "tango"
+---
+
+## Overview
+
+The main goal of this lab is to have students think more about performance metrics, especially those used for classification.
+
+## Exercises
+
+### Exercise 1
+
+When considering classification metric it is essential to understand the 4 essential terms below. Provide a definition for each.
+
+- **True positives**
+
+- **True negatives**
+
+- **False positives**
+
+- **False negatives**
+
+<br>
+
+While the general definitions are useful it is vital to be able to interpret each in the context of a use case. Suppose we are attempting to classify an email as spam or not spam. We consider the prediction of spam to be a success or positive condition. 
+
+Define each each of the terms and describe the consequence of each (what happens to the email) in the context of this use case:
+
+- **True positives**
+
+- **True negatives**
+
+- **False positives**
+
+- **False negatives**
+
+<br>
+
+### Exercise 2
+
+Using the email example again, suppose we are attempting to classify an email as spam or not spam. We consider the prediction of spam to be a success or positive condition.
+
+Describe each of the metrics in context of our example and indicate how to use the metric (meaning are lower or higher values better):
+
+- **Accuracy:**
+
+- **Precision:**
+
+- **Recall:**
+
+- **Sensitivity:**
+
+- **Specificity:**
+
+<br>
+
+### Exercise 3
+
+Name one metric that you would use if you are trying to balance recall and precision. Also indicate how to read/use the metric to compare models.  
+
+<br>
+
+### Exercise 4
+
+Below is the code contained in a nearest neighbor tuning script, `knn_tuning.R`, that was used in lab 2. By default the accuracy and AUC performance metrics are calculated. Suppose that in addition to these two default performance metrics we wanted to also calculate precision, recall, sensitivity, specificity, and an F measure. Modify the script below so that all desired performance metrics are calculated during the tuning step. 
+
+*Hint:* Start by defining the appropriate metric set and then reference that set with in the function that carries out the tuning.
+
+```{r, eval=FALSE}
+# Knn tuning ----
+
+# Load package(s) ----
+library(tidyverse)
+library(tidymodels)
+
+# Seed
+set.seed(2021)
+
+# load required objects ----
+load("model_info/wildfires_setup.rda")
+
+# Define model ----
+knn_model <- nearest_neighbor(
+  mode = "classification",
+  neighbors = tune()
+) %>%
+  set_engine("kknn")
+
+# # check tuning parameters
+# parameters(knn_model)
+
+# set-up tuning grid ----
+knn_params <- parameters(knn_model) %>%
+  update(neighbors = neighbors(range = c(1,40)))
+
+# define grid
+knn_grid <- grid_regular(knn_params, levels = 15)
+
+# workflow ----
+knn_workflow <- workflow() %>%
+  add_model(knn_model) %>%
+  add_recipe(wildfires_recipe)
+
+# Tuning/fitting ----
+knn_tune <- knn_workflow %>%
+  tune_grid(
+    resamples = wildfires_fold,
+    grid = knn_grid
+  )
+
+# Write out results & workflow
+save(knn_tune, knn_workflow, file = "model_info/knn_tune.rda")
+```
+
+<br>
+
+There is some redundancy in the set of performance metrics we are using. What is it?
+
+<br>
+
+### Exercise 5
+
+When conducting regression ML we have used root mean squared error and R squared. In a few cases we made use of mean absolute error. 
+
+Name at least 2 other regression performance metrics and their functions in our tidymodels framework. Provide a description of the metric and how to use it to understand a model's performance. 
+
+<br>
+
+### Challenge
+**Not Required**
+
+It might be useful to have a baseline model for contextualizing and understanding if the models we are training are actually useful or an improvement. In many instances we are working on ML problems that do not have a known baseline or standard model to compare to so comparison to a null model is useful. Meaning the null model is a baseline model that we can use for comparison. Especially if we want to establish that models we are training are of any value (in terms of prediction). 
+
+In the code chunk below provide the code necessary to define a null model in our tidymodels framework (model, engine, formula, mode) for both a regression and classification problem.
+
+```{r}
+# define null model for regression ML
+
+
+# define null model for classification ML
+
+```
+
+
+## Github Repo Link
+
+[YOUR GITHUB URL](YOUR GITHUB URL){target="_blank"}
+
